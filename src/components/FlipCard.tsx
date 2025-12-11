@@ -15,18 +15,8 @@ export function FlipCard({ card, isFlipped, onFlip }: FlipCardProps) {
       return card.term;
     }
     
-    switch (card.currentLevel) {
-      case 0:
-        return card.levels.level0;
-      case 1:
-        return card.levels.level1;
-      case 2:
-        return card.levels.level2;
-      case 3:
-        return card.levels.level3;
-      default:
-        return card.levels.level0;
-    }
+    // Возвращаем контент текущего уровня из массива
+    return card.levels[card.currentLevel] || card.levels[0];
   };
   
   return (
@@ -45,7 +35,7 @@ export function FlipCard({ card, isFlipped, onFlip }: FlipCardProps) {
         >
           {/* Front Side */}
           <div
-            className="absolute inset-0 w-full h-full bg-white rounded-3xl shadow-lg p-8 flex flex-col items-center justify-center"
+            className="absolute inset-0 w-full h-full bg-[#252B3D] rounded-3xl shadow-lg p-8 flex flex-col items-center justify-center border border-[#2D3548]"
             style={{
               backfaceVisibility: 'hidden',
               WebkitBackfaceVisibility: 'hidden',
@@ -54,8 +44,8 @@ export function FlipCard({ card, isFlipped, onFlip }: FlipCardProps) {
             <div className="mb-4">
               <LevelIndicator currentLevel={card.currentLevel} size="large" />
             </div>
-            <p className="text-center text-xl">{getLevelContent(card, true)}</p>
-            <div className="mt-6 text-sm text-[#718096]">
+            <p className="text-center text-xl text-[#E8EAF0]">{getLevelContent(card, true)}</p>
+            <div className="mt-6 text-sm text-[#9CA3AF]">
               Нажмите, чтобы увидеть ответ
             </div>
           </div>
@@ -74,7 +64,7 @@ export function FlipCard({ card, isFlipped, onFlip }: FlipCardProps) {
             </div>
             <p className="text-center text-xl">{getLevelContent(card, false)}</p>
             <div className="mt-6 text-sm opacity-80">
-              Уровень {card.currentLevel + 1} из 4
+              Уровень {card.currentLevel + 1} из {card.levels.length}
             </div>
           </div>
         </motion.div>

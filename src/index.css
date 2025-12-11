@@ -23,6 +23,19 @@
       --tw-ring-offset-width: 0px;
       --tw-ring-offset-color: #fff;
       --tw-ring-offset-shadow: 0 0 #0000;
+      --tw-blur: initial;
+      --tw-brightness: initial;
+      --tw-contrast: initial;
+      --tw-grayscale: initial;
+      --tw-hue-rotate: initial;
+      --tw-invert: initial;
+      --tw-opacity: initial;
+      --tw-saturate: initial;
+      --tw-sepia: initial;
+      --tw-drop-shadow: initial;
+      --tw-drop-shadow-color: initial;
+      --tw-drop-shadow-alpha: 100%;
+      --tw-drop-shadow-size: initial;
       --tw-duration: initial;
       --tw-ease: initial;
       --tw-scale-x: 1;
@@ -71,8 +84,9 @@
     --default-mono-font-family: var(--font-mono);
     --default-mono-font-feature-settings: var(--font-mono--font-feature-settings);
     --default-mono-font-variation-settings: var(--font-mono--font-variation-settings);
-    --color-bg-light: #f5f7fa;
-    --color-text-primary: #2d3748;
+    --color-border: #2d3548;
+    --color-bg-light: #1a1f2e;
+    --color-text-primary: #e8eaf0;
   }
 }
 
@@ -317,7 +331,7 @@
   }
 
   * {
-    border-color: oklch(.922 0 0);
+    border-color: var(--color-border);
     outline-color: color-mix(in oklab, oklch(.708 0 0) 50%, transparent);
   }
 
@@ -704,12 +718,25 @@
     border-top-width: 1px;
   }
 
+  .border-b {
+    border-bottom-style: var(--tw-border-style);
+    border-bottom-width: 1px;
+  }
+
+  .border-\[\#2D3548\] {
+    border-color: #2d3548;
+  }
+
   .border-\[\#4A6FA5\] {
     border-color: #4a6fa5;
   }
 
-  .border-gray-200 {
-    border-color: var(--color-gray-200);
+  .bg-\[\#1A1F2E\] {
+    background-color: #1a1f2e;
+  }
+
+  .bg-\[\#2D3548\] {
+    background-color: #2d3548;
   }
 
   .bg-\[\#4A6FA5\] {
@@ -718,6 +745,10 @@
 
   .bg-\[\#38A169\] {
     background-color: #38a169;
+  }
+
+  .bg-\[\#252B3D\] {
+    background-color: #252b3d;
   }
 
   .bg-\[\#E53E3E\] {
@@ -746,6 +777,10 @@
 
   .bg-white {
     background-color: var(--color-white);
+  }
+
+  .p-1 {
+    padding: calc(var(--spacing) * 1);
   }
 
   .p-3 {
@@ -886,16 +921,24 @@
     line-height: var(--tw-leading, var(--text-xs--line-height));
   }
 
-  .text-\[\#2D3748\] {
-    color: #2d3748;
-  }
-
   .text-\[\#4A6FA5\] {
     color: #4a6fa5;
   }
 
+  .text-\[\#9CA3AF\] {
+    color: #9ca3af;
+  }
+
   .text-\[\#718096\] {
     color: #718096;
+  }
+
+  .text-\[\#E8EAF0\] {
+    color: #e8eaf0;
+  }
+
+  .text-\[\#E53E3E\] {
+    color: #e53e3e;
   }
 
   .text-\[\#FF9A76\] {
@@ -932,6 +975,10 @@
   .shadow-sm {
     --tw-shadow: 0 1px 3px 0 var(--tw-shadow-color, #0000001a), 0 1px 2px -1px var(--tw-shadow-color, #0000001a);
     box-shadow: var(--tw-inset-shadow), var(--tw-inset-ring-shadow), var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow);
+  }
+
+  .filter {
+    filter: var(--tw-blur, ) var(--tw-brightness, ) var(--tw-contrast, ) var(--tw-grayscale, ) var(--tw-hue-rotate, ) var(--tw-invert, ) var(--tw-saturate, ) var(--tw-sepia, ) var(--tw-drop-shadow, );
   }
 
   .transition {
@@ -978,8 +1025,8 @@
     transition-timing-function: var(--ease-out);
   }
 
-  .placeholder\:text-\[\#718096\]::placeholder {
-    color: #718096;
+  .placeholder\:text-\[\#9CA3AF\]::placeholder {
+    color: #9ca3af;
   }
 
   .focus\:border-\[\#4A6FA5\]:focus {
@@ -1208,6 +1255,72 @@ input, textarea {
   syntax: "*";
   inherits: false;
   initial-value: 0 0 #0000;
+}
+
+@property --tw-blur {
+  syntax: "*";
+  inherits: false
+}
+
+@property --tw-brightness {
+  syntax: "*";
+  inherits: false
+}
+
+@property --tw-contrast {
+  syntax: "*";
+  inherits: false
+}
+
+@property --tw-grayscale {
+  syntax: "*";
+  inherits: false
+}
+
+@property --tw-hue-rotate {
+  syntax: "*";
+  inherits: false
+}
+
+@property --tw-invert {
+  syntax: "*";
+  inherits: false
+}
+
+@property --tw-opacity {
+  syntax: "*";
+  inherits: false
+}
+
+@property --tw-saturate {
+  syntax: "*";
+  inherits: false
+}
+
+@property --tw-sepia {
+  syntax: "*";
+  inherits: false
+}
+
+@property --tw-drop-shadow {
+  syntax: "*";
+  inherits: false
+}
+
+@property --tw-drop-shadow-color {
+  syntax: "*";
+  inherits: false
+}
+
+@property --tw-drop-shadow-alpha {
+  syntax: "<percentage>";
+  inherits: false;
+  initial-value: 100%;
+}
+
+@property --tw-drop-shadow-size {
+  syntax: "*";
+  inherits: false
 }
 
 @property --tw-duration {

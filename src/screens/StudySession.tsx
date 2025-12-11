@@ -19,7 +19,7 @@ export function StudySession({ cards, currentIndex, onRate, onLevelUp, onClose }
   
   const currentCard = cards[currentIndex];
   const progress = ((currentIndex) / cards.length) * 100;
-  const canLevelUp = currentCard.currentLevel < 3;
+  const canLevelUp = currentCard.currentLevel < currentCard.levels.length - 1; // Проверяем по длине массива
   
   const handleRate = (rating: DifficultyRating) => {
     setIsFlipped(false);
@@ -44,15 +44,15 @@ export function StudySession({ cards, currentIndex, onRate, onLevelUp, onClose }
   }
   
   return (
-    <div className="min-h-screen bg-[#F5F7FA] flex flex-col">
+    <div className="min-h-screen bg-[#1A1F2E] flex flex-col">
       {/* Header */}
-      <div className="bg-white px-4 pt-12 pb-4 shadow-sm">
+      <div className="bg-[#252B3D] px-4 pt-12 pb-4 shadow-sm border-b border-[#2D3548]">
         <div className="max-w-[390px] mx-auto">
           <div className="flex justify-between items-center mb-4">
-            <button onClick={onClose} className="text-[#718096]">
+            <button onClick={onClose} className="text-[#9CA3AF]">
               <X size={24} />
             </button>
-            <span className="text-sm text-[#718096]">
+            <span className="text-sm text-[#9CA3AF]">
               {currentIndex + 1} / {cards.length}
             </span>
           </div>
@@ -116,7 +116,7 @@ export function StudySession({ cards, currentIndex, onRate, onLevelUp, onClose }
             </div>
             
             {/* Next Review Info */}
-            <div className="text-center text-sm text-[#718096]">
+            <div className="text-center text-sm text-[#9CA3AF]">
               Следующее повторение через 3 дня
             </div>
           </div>

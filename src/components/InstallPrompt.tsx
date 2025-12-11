@@ -54,15 +54,15 @@ export function InstallPrompt() {
           exit={{ y: 100, opacity: 0 }}
           className="fixed bottom-20 left-4 right-4 z-50 max-w-[390px] mx-auto"
         >
-          <div className="bg-white rounded-2xl shadow-2xl p-4 border border-gray-200">
+          <div className="bg-[#252B3D] rounded-2xl shadow-2xl p-4 border border-[#2D3548]">
             <div className="flex items-start gap-3">
               <div className="flex-shrink-0 w-12 h-12 bg-[#4A6FA5] rounded-xl flex items-center justify-center">
                 <Download size={24} className="text-white" />
               </div>
               
               <div className="flex-1">
-                <h3 className="text-base mb-1">Установить приложение</h3>
-                <p className="text-sm text-[#718096] mb-3">
+                <h3 className="text-base mb-1 text-[#E8EAF0]">Установить приложение</h3>
+                <p className="text-sm text-[#9CA3AF] mb-3">
                   Добавьте AdaptiveRecall на главный экран для быстрого доступа
                 </p>
                 
@@ -75,7 +75,7 @@ export function InstallPrompt() {
                   </button>
                   <button
                     onClick={handleDismiss}
-                    className="px-4 py-2 text-[#718096] text-sm"
+                    className="px-4 py-2 text-[#9CA3AF] text-sm"
                   >
                     Позже
                   </button>
@@ -84,7 +84,7 @@ export function InstallPrompt() {
               
               <button
                 onClick={handleDismiss}
-                className="flex-shrink-0 text-[#718096]"
+                className="flex-shrink-0 text-[#9CA3AF]"
               >
                 <X size={20} />
               </button>

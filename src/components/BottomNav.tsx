@@ -15,7 +15,7 @@ export function BottomNav({ activeTab, onTabChange }: BottomNavProps) {
   ];
   
   return (
-    <nav className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 px-4 pb-safe">
+    <nav className="fixed bottom-0 left-0 right-0 bg-[#252B3D] border-t border-[#2D3548] px-4 pb-safe">
       <div className="max-w-[390px] mx-auto">
         <div className="flex justify-around items-center h-16">
           {tabs.map(({ id, icon: Icon, label }) => (
@@ -23,7 +23,7 @@ export function BottomNav({ activeTab, onTabChange }: BottomNavProps) {
               key={id}
               onClick={() => onTabChange(id)}
               className={`flex flex-col items-center justify-center gap-1 min-w-[60px] transition-colors ${
-                activeTab === id ? 'text-[#4A6FA5]' : 'text-[#718096]'
+                activeTab === id ? 'text-[#4A6FA5]' : 'text-[#9CA3AF]'
               }`}
             >
               <Icon size={24} strokeWidth={2} />

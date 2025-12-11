@@ -1,13 +1,8 @@
 export interface Card {
   id: string;
   term: string;
-  levels: {
-    level0: string; // Простое определение
-    level1: string; // Развернутое определение
-    level2: string; // Контекстный вопрос
-    level3: string; // Сложная задача
-  };
-  currentLevel: 0 | 1 | 2 | 3;
+  levels: string[]; // Динамический массив уровней (от 1 до неограниченного количества)
+  currentLevel: number; // Текущий уровень (индекс в массиве)
   nextReview: Date;
   lastReviewed?: Date;
   streak: number;
