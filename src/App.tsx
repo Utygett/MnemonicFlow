@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { BottomNav } from './components/BottomNav';
 import { InstallPrompt } from './components/InstallPrompt';
 import { Dashboard } from './screens/Dashboard';
@@ -8,12 +8,136 @@ import { Statistics } from './screens/Statistics';
 import { Onboarding } from './screens/Onboarding';
 import { Card, Deck, Statistics as StatsType, DifficultyRating } from './types';
 
+// Компонент для отображения обновлений PWA
+function PWAUpdatePrompt() {
+  const [showReload, setShowReload] = useState(false);
+  const [waitingWorker, setWaitingWorker] = useState<ServiceWorker | null>(null);
+
+  useEffect(() => {
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.ready.then((registration) => {
+        registration.addEventListener('updatefound', () => {
+          const newWorker = registration.installing;
+          if (newWorker) {
+            newWorker.addEventListener('statechange', () => {
+              if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                setShowReload(true);
+                setWaitingWorker(newWorker);
+              }
+            });
+          }
+        });
+      });
+
+      let refreshing = false;
+      navigator.serviceWorker.addEventListener('controllerchange', () => {
+        if (!refreshing) {
+          refreshing = true;
+          window.location.reload();
+        }
+      });
+    }
+  }, []);
+
+  const reloadPage = () => {
+    waitingWorker?.postMessage({ type: 'SKIP_WAITING' });
+    setShowReload(false);
+    window.location.reload();
+  };
+
+  if (!showReload) return null;
+
+  return (
+    <div className="fixed top-4 right-4 left-4 z-50 bg-[#252B3D] p-4 rounded-lg shadow-lg border border-[#2D3548] animate-slide-down">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+        <div className="flex items-start gap-3">
+          <div className="flex-shrink-0 w-8 h-8 bg-[#4A6FA5] rounded-full flex items-center justify-center">
+            <span className="text-white text-sm">🔄</span>
+          </div>
+          <div>
+            <p className="text-[#E8EAF0] font-medium">Доступно обновление!</p>
+            <p className="text-[#9CA3AF] text-sm mt-1">
+              Новая версия приложения загружена. Обновите для получения новых функций.
+            </p>
+          </div>
+        </div>
+        <div className="flex gap-2 w-full sm:w-auto">
+          <button
+            onClick={() => setShowReload(false)}
+            className="px-4 py-2 text-sm font-medium text-[#9CA3AF] hover:text-[#E8EAF0] transition-colors"
+          >
+            Позже
+          </button>
+          <button
+            onClick={reloadPage}
+            className="px-4 py-2 bg-[#4A6FA5] text-white rounded-lg hover:bg-[#3A5A85] transition-colors text-sm font-medium flex-1 sm:flex-none"
+          >
+            Обновить
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// Компонент для отображения статуса офлайн-режима
+function OfflineStatus() {
+  const [isOnline, setIsOnline] = useState(navigator.onLine);
+
+  useEffect(() => {
+    const handleOnline = () => setIsOnline(true);
+    const handleOffline = () => setIsOnline(false);
+
+    window.addEventListener('online', handleOnline);
+    window.addEventListener('offline', handleOffline);
+
+    return () => {
+      window.removeEventListener('online', handleOnline);
+      window.removeEventListener('offline', handleOffline);
+    };
+  }, []);
+
+  if (isOnline) return null;
+
+  return (
+    <div className="fixed bottom-24 right-4 left-4 z-40 bg-[#FF9A76]/10 border border-[#FF9A76]/20 p-3 rounded-lg backdrop-blur-sm">
+      <div className="flex items-center gap-2 text-sm">
+        <div className="w-2 h-2 bg-[#FF9A76] rounded-full animate-pulse"></div>
+        <span className="text-[#FF9A76]">Работаем в офлайн-режиме</span>
+      </div>
+    </div>
+  );
+}
+
 export default function App() {
   const [hasCompletedOnboarding, setHasCompletedOnboarding] = useState(false);
   const [activeTab, setActiveTab] = useState<'home' | 'study' | 'stats' | 'profile'>('home');
   const [isStudying, setIsStudying] = useState(false);
   const [isCreatingCard, setIsCreatingCard] = useState(false);
   const [currentCardIndex, setCurrentCardIndex] = useState(0);
+  
+  // Проверяем, было ли приложение установлено как PWA
+  const [isPWA, setIsPWA] = useState(false);
+  
+  useEffect(() => {
+    // Проверка на установку как PWA
+    const checkPWA = () => {
+      if (window.matchMedia('(display-mode: standalone)').matches || 
+          window.navigator.standalone ||
+          document.referrer.includes('android-app://')) {
+        setIsPWA(true);
+      }
+    };
+    
+    checkPWA();
+    
+    // Регистрация Service Worker для PWA
+    if ('serviceWorker' in navigator && process.env.NODE_ENV === 'production') {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('/sw.js');
+      });
+    }
+  }, []);
   
   // Mock Data
   const [decks, setDecks] = useState<Deck[]>([
@@ -187,27 +311,50 @@ export default function App() {
   
   if (isStudying) {
     return (
-      <StudySession
-        cards={cards}
-        currentIndex={currentCardIndex}
-        onRate={handleRate}
-        onLevelUp={handleLevelUp}
-        onClose={handleCloseStudy}
-      />
+      <>
+        <StudySession
+          cards={cards}
+          currentIndex={currentCardIndex}
+          onRate={handleRate}
+          onLevelUp={handleLevelUp}
+          onClose={handleCloseStudy}
+        />
+        <PWAUpdatePrompt />
+        <OfflineStatus />
+      </>
     );
   }
   
   if (isCreatingCard) {
     return (
-      <CreateCard
-        onSave={handleSaveCard}
-        onCancel={() => setIsCreatingCard(false)}
-      />
+      <>
+        <CreateCard
+          onSave={handleSaveCard}
+          onCancel={() => setIsCreatingCard(false)}
+        />
+        <PWAUpdatePrompt />
+        <OfflineStatus />
+      </>
     );
   }
   
   return (
     <div className="relative">
+      {/* Уведомление об обновлении PWA */}
+      <PWAUpdatePrompt />
+      
+      {/* Статус офлайн-режима */}
+      <OfflineStatus />
+      
+      {/* PWA Badge (только если установлено как PWA) */}
+      {isPWA && (
+        <div className="fixed top-4 left-4 z-30">
+          <div className="bg-[#4A6FA5]/20 text-[#4A6FA5] text-xs px-2 py-1 rounded-full border border-[#4A6FA5]/30">
+            PWA
+          </div>
+        </div>
+      )}
+      
       {activeTab === 'home' && (
         <Dashboard
           statistics={statistics}
@@ -233,10 +380,22 @@ export default function App() {
               </p>
               <button
                 onClick={() => setIsCreatingCard(true)}
-                className="bg-[#4A6FA5] text-white px-6 py-3 rounded-lg"
+                className="bg-[#4A6FA5] text-white px-6 py-3 rounded-lg hover:bg-[#3A5A85] transition-colors"
               >
                 Создать карточку
               </button>
+              
+              {/* PWA Installation Hint */}
+              {!isPWA && (
+                <div className="mt-8 p-4 bg-[#252B3D] rounded-lg border border-[#2D3548]">
+                  <p className="text-sm text-[#9CA3AF] mb-2">
+                    💡 Установите приложение для работы офлайн
+                  </p>
+                  <p className="text-xs text-[#6B7280]">
+                    Нажмите "Установить" в меню браузера
+                  </p>
+                </div>
+              )}
             </div>
           </div>
         </div>
@@ -260,6 +419,29 @@ export default function App() {
               </div>
               <h2 className="mb-2 text-[#E8EAF0]">Пользователь</h2>
               <p className="text-[#9CA3AF]">user@example.com</p>
+              
+              {/* PWA Status */}
+              <div className="mt-6 pt-6 border-t border-[#2D3548]">
+                <h3 className="text-sm font-medium text-[#E8EAF0] mb-3">Настройки приложения</h3>
+                <div className="space-y-3">
+                  <div className="flex justify-between items-center">
+                    <span className="text-sm text-[#9CA3AF]">Версия</span>
+                    <span className="text-sm text-[#E8EAF0]">1.0.0</span>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-sm text-[#9CA3AF]">Режим</span>
+                    <span className="text-sm text-[#4A6FA5]">
+                      {isPWA ? 'Установлено как PWA' : 'Веб-версия'}
+                    </span>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-sm text-[#9CA3AF]">Офлайн доступ</span>
+                    <span className="text-sm text-[#38A169]">
+                      {isPWA ? 'Доступно' : 'Требуется установка'}
+                    </span>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         </div>
