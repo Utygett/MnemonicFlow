@@ -5,8 +5,10 @@ import { Dashboard } from './screens/Dashboard';
 import { StudySession } from './screens/StudySession';
 import { CreateCard } from './screens/CreateCard';
 import { Statistics } from './screens/Statistics';
-import { Onboarding } from './screens/Onboarding';
-import { Card, Deck, Statistics as StatsType, DifficultyRating } from './types';
+import { Onboarding } from './screens/Onboarding/Onboarding';
+import { CardType, Card, Deck, Statistics as StatsType, DifficultyRating } from './types';
+import { useDecks, useStatistics, useStudySession } from './hooks';
+import { ApiClient } from './api/client';
 
 // Компонент для отображения обновлений PWA
 function PWAUpdatePrompt() {
@@ -102,11 +104,24 @@ export default function App() {
   const [activeTab, setActiveTab] = useState<'home' | 'study' | 'stats' | 'profile'>('home');
   const [isStudying, setIsStudying] = useState(false);
   const [isCreatingCard, setIsCreatingCard] = useState(false);
-  const [currentCardIndex, setCurrentCardIndex] = useState(0);
+  const [isPWA, setIsPWA] = useState(false);
+  const [apiHealth, setApiHealth] = useState<'healthy' | 'unhealthy' | 'checking'>('checking');
+  
+  // Используем хуки для получения данных с API
+  const { decks, loading: decksLoading, error: decksError, refresh: refreshDecks } = useDecks();
+  const { statistics, loading: statsLoading, error: statsError, refresh: refreshStats } = useStatistics();
+  const { 
+    session, 
+    currentCard, 
+    isCompleted, 
+    loading: sessionLoading, 
+    error: sessionError, 
+    rateCard,
+    levelUpCard,
+    resetSession 
+  } = useStudySession();
   
   // Проверяем, было ли приложение установлено как PWA
-  const [isPWA, setIsPWA] = useState(false);
-  
   useEffect(() => {
     // Проверка на установку как PWA
     const checkPWA = () => {
@@ -127,191 +142,169 @@ export default function App() {
     }
   }, []);
   
-  // Mock Data
-  const [decks, setDecks] = useState<Deck[]>([
-    {
-      id: '1',
-      name: 'Биология',
-      description: 'Основные понятия биологии',
-      cardsCount: 45,
-      progress: 68,
-      averageLevel: 1.5,
-      color: '#4A6FA5',
-    },
-    {
-      id: '2',
-      name: 'История',
-      description: 'Важные исторические события',
-      cardsCount: 32,
-      progress: 45,
-      averageLevel: 1.2,
-      color: '#FF9A76',
-    },
-    {
-      id: '3',
-      name: 'Программирование',
-      description: 'Основы JavaScript',
-      cardsCount: 56,
-      progress: 82,
-      averageLevel: 2.3,
-      color: '#38A169',
-    },
-  ]);
-  
-  const [cards, setCards] = useState<Card[]>([
-    {
-      id: '1',
-      term: 'Фотосинтез',
-      levels: [
-        'Процесс превращения света в энергию',
-        'Процесс, при котором растения преобразуют световую энергию в химическую, создавая глюкозу из CO₂ и H₂O',
-        'Объясните, почему фотосинтез важен для всей экосистемы планеты',
-        'Сравните световую и темновую фазы фотосинтеза, укажите продукты каждой фазы',
-      ],
-      currentLevel: 1,
-      nextReview: new Date(),
-      streak: 3,
-      deckId: '1',
-    },
-    {
-      id: '2',
-      term: 'Митоз',
-      levels: [
-        'Деление клетки',
-        'Процесс деления соматических клеток, при котором из одной клетки образуются две идентичные',
-        'В чем разница между митозом и мейозом?',
-        'Опишите все фазы митоза и что происходит с хромосомами на каждом этапе',
-      ],
-      currentLevel: 0,
-      nextReview: new Date(),
-      streak: 1,
-      deckId: '1',
-    },
-    {
-      id: '3',
-      term: 'ДНК',
-      levels: [
-        'Носитель генетической информации',
-        'Дезоксирибонуклеиновая кислота - молекула, хранящая генетическую информацию',
-        'Как структура ДНК связана с её функцией?',
-        'Объясните процесс репликации ДНК и роль ферментов в этом процессе',
-      ],
-      currentLevel: 2,
-      nextReview: new Date(),
-      streak: 5,
-      deckId: '1',
-    },
-  ]);
-  
-  const [statistics, setStatistics] = useState<StatsType>({
-    cardsStudiedToday: 24,
-    timeSpentToday: 35,
-    currentStreak: 7,
-    totalCards: 133,
-    weeklyActivity: [15, 22, 18, 25, 20, 24, 19],
-    achievements: [
-      {
-        id: '1',
-        title: '7 дней',
-        description: 'Недельная серия',
-        icon: 'trophy',
-        unlocked: true,
-      },
-      {
-        id: '2',
-        title: '100 карточек',
-        description: 'Изучено 100 карточек',
-        icon: 'target',
-        unlocked: true,
-      },
-      {
-        id: '3',
-        title: 'Скорость',
-        description: '50 карточек за день',
-        icon: 'zap',
-        unlocked: false,
-      },
-    ],
-  });
+  // Проверка здоровья API
+  useEffect(() => {
+    const checkApiHealth = async () => {
+      try {
+        await ApiClient.healthCheck();
+        setApiHealth('healthy');
+      } catch (error) {
+        setApiHealth('unhealthy');
+        console.warn('API is unavailable, using fallback data');
+      }
+    };
+    
+    checkApiHealth();
+  }, []);
   
   const handleStartStudy = () => {
     setIsStudying(true);
-    setCurrentCardIndex(0);
   };
   
-  const handleRate = (rating: DifficultyRating) => {
-    // Update statistics
-    setStatistics({
-      ...statistics,
-      cardsStudiedToday: statistics.cardsStudiedToday + 1,
-    });
-    
-    // Move to next card
-    if (currentCardIndex < cards.length - 1) {
-      setCurrentCardIndex(currentCardIndex + 1);
-    } else {
-      // Session complete
-      setIsStudying(false);
-      setCurrentCardIndex(0);
+  const handleRate = async (rating: DifficultyRating) => {
+    try {
+      await rateCard(rating);
+      
+      // Обновляем статистику после ответа
+      refreshStats();
+      
+      // Если сессия завершена
+      if (isCompleted) {
+        setIsStudying(false);
+        resetSession();
+      }
+    } catch (error) {
+      console.error('Error rating card:', error);
     }
   };
   
   const handleLevelUp = () => {
-    const currentCard = cards[currentCardIndex];
-    if (currentCard.currentLevel < currentCard.levels.length - 1) {
-      const updatedCards = cards.map((card) =>
-        card.id === currentCard.id
-          ? { ...card, currentLevel: card.currentLevel + 1 }
-          : card
-      );
-      setCards(updatedCards);
-    }
+    // Логика повышения уровня уже обрабатывается в API
   };
   
   const handleCloseStudy = () => {
     setIsStudying(false);
-    setCurrentCardIndex(0);
+    resetSession();
   };
   
-  const handleSaveCard = (cardData: any) => {
-    const newCard: Card = {
-      id: Date.now().toString(),
-      term: cardData.term,
-      levels: cardData.levels,
-      currentLevel: 0,
-      nextReview: new Date(),
-      streak: 0,
-      deckId: '1',
-    };
-    setCards([...cards, newCard]);
-    setIsCreatingCard(false);
+  const handleSaveCard = async (cardData: any) => {
+    try {
+      await ApiClient.createCard({
+        term: cardData.term,
+        levels: cardData.levels,
+        deckId: cardData.deckId || '1',
+        cardType: CardType.Flashcard,
+      });
+      
+      // Обновляем данные после создания карточки
+      refreshDecks();
+      refreshStats();
+      setIsCreatingCard(false);
+    } catch (error) {
+      console.error('Error creating card:', error);
+    }
   };
   
   const handleDeckClick = (deckId: string) => {
-    // Filter cards for this deck and start study
+    // Можно добавить логику для начала изучения конкретной колоды
     setIsStudying(true);
-    setCurrentCardIndex(0);
   };
+  
+  // Показываем загрузку
+  if (decksLoading || statsLoading) {
+    return (
+      <div className="min-h-screen bg-dark flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-accent mx-auto mb-4"></div>
+          <p className="text-[#9CA3AF]">Загрузка данных...</p>
+        </div>
+      </div>
+    );
+  }
+  
+  // Показываем ошибку загрузки
+  if (decksError || statsError) {
+    return (
+      <div className="min-h-screen bg-dark flex items-center justify-center p-4">
+        <div className="card text-center">
+          <div className="text-4xl mb-4">⚠️</div>
+          <h2 className="text-[#E8EAF0] mb-2">Ошибка загрузки</h2>
+          <p className="text-[#9CA3AF] mb-4">{decksError || statsError}</p>
+          <button 
+            onClick={() => { refreshDecks(); refreshStats(); }} 
+            className="btn-primary"
+          >
+            Попробовать снова
+          </button>
+        </div>
+      </div>
+    );
+  }
   
   if (!hasCompletedOnboarding) {
     return <Onboarding onComplete={() => setHasCompletedOnboarding(true)} />;
   }
   
-  if (isStudying) {
+if (isStudying) {
+  // 1️⃣ Загрузка карточек
+  if (sessionLoading) {
     return (
-      <>
-        <StudySession
-          cards={cards}
-          currentIndex={currentCardIndex}
-          onRate={handleRate}
-          onLevelUp={handleLevelUp}
-          onClose={handleCloseStudy}
-        />
-        <PWAUpdatePrompt />
-        <OfflineStatus />
-      </>
+      <div className="min-h-screen bg-dark flex items-center justify-center">
+        <div className="text-[#9CA3AF]">Загрузка карточек…</div>
+      </div>
     );
   }
+
+  // 2️⃣ Сессия завершена
+  if (isCompleted) {
+    return (
+      <div className="min-h-screen bg-dark flex items-center justify-center p-4">
+        <div className="card text-center max-w-390">
+          <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>🎉</div>
+          <h2 className="text-[#E8EAF0] mb-2">Сессия завершена</h2>
+          <p className="text-[#9CA3AF] mb-6">
+            Отличная работа! Ты прошёл все карточки.
+          </p>
+          <button
+            className="btn-primary w-full"
+            onClick={() => {
+              resetSession();
+              setIsStudying(false);
+            }}
+          >
+            Вернуться в меню
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  // 3️⃣ Нет карточек
+  if (session.cards.length === 0) {
+    return (
+      <div className="min-h-screen bg-dark flex items-center justify-center">
+        <div className="text-[#9CA3AF]">Нет карточек для изучения</div>
+      </div>
+    );
+  }
+
+  // 4️⃣ Обычная сессия
+  return (
+    <>
+      <StudySession
+        cards={session.cards}
+        currentIndex={session.currentIndex}
+        onRate={handleRate}
+        onLevelUp={levelUpCard}
+        onClose={handleCloseStudy}
+      />
+      <PWAUpdatePrompt />
+      <OfflineStatus />
+    </>
+  );
+}
+
+
   
   if (isCreatingCard) {
     return (
@@ -334,6 +327,15 @@ export default function App() {
       {/* Статус офлайн-режима */}
       <OfflineStatus />
       
+      {/* Индикатор статуса API */}
+      {apiHealth === 'unhealthy' && (
+        <div className="fixed top-4 right-4 z-30">
+          <div className="bg-red-500 text-white px-3 py-1 rounded-full text-sm">
+            API Offline
+          </div>
+        </div>
+      )}
+      
       {/* PWA Badge (только если установлено как PWA) */}
       {isPWA && (
         <div className="fixed top-4 left-4 z-30">
@@ -345,7 +347,14 @@ export default function App() {
       
       {activeTab === 'home' && (
         <Dashboard
-          statistics={statistics}
+          statistics={statistics || {
+            cardsStudiedToday: 0,
+            timeSpentToday: 0,
+            currentStreak: 0,
+            totalCards: 0,
+            weeklyActivity: [0, 0, 0, 0, 0, 0, 0],
+            achievements: [],
+          }}
           decks={decks}
           onStartStudy={handleStartStudy}
           onDeckClick={handleDeckClick}
@@ -385,7 +394,7 @@ export default function App() {
         </div>
       )}
       
-      {activeTab === 'stats' && (
+      {activeTab === 'stats' && statistics && (
         <Statistics statistics={statistics} decks={decks} />
       )}
       
@@ -406,6 +415,12 @@ export default function App() {
               <div className="mt-6 pt-6 border-t border-[#2D3548]">
                 <h3 className="text-sm font-medium text-[#E8EAF0] mb-3">Настройки приложения</h3>
                 <div className="space-y-3">
+                  <div className="flex justify-between items-center">
+                    <span className="text-sm text-[#9CA3AF]">API Статус</span>
+                    <span className={`text-sm ${apiHealth === 'healthy' ? 'text-green-500' : 'text-red-500'}`}>
+                      {apiHealth === 'healthy' ? '✓ Работает' : '✗ Ошибка'}
+                    </span>
+                  </div>
                   <div className="flex justify-between items-center">
                     <span className="text-sm text-[#9CA3AF]">Версия</span>
                     <span className="text-sm text-[#E8EAF0]">1.0.0</span>

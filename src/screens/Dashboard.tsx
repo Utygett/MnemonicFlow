@@ -1,6 +1,6 @@
 import React from 'react';
 import { Statistics, Deck } from '../types';
-import { Button } from '../components/Button';
+import { Button } from '../components/Button/Button';
 import { DeckCard } from '../components/DeckCard';
 import { Clock, BookOpen, Flame } from 'lucide-react';
 

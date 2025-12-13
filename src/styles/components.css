@@ -2,15 +2,45 @@
 
 /* relies on variables defined in `src/styles/globals.css` */
 
+/* Базовые стили для всего документа */
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+    sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Базовые стили для текста */
+h1, h2, h3, h4, h5, h6, p {
+  margin: 0;
+  font-family: inherit;
+}
+
 /* Button */
 .btn {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  border-radius: 0.5rem; /* rounded-lg */
+  border-radius: 0.5rem;
   transition: transform 0.12s ease, background-color 0.12s ease, opacity 0.2s;
   border: none;
   cursor: pointer;
+  font-family: inherit; /* Важно: наследовать шрифт */
+  font-size: 1rem; /* Базовый размер шрифта */
+  font-weight: 500; /* Средняя жирность */
+  line-height: 1.5; /* Межстрочный интервал */
+  text-align: center; /* Центрирование текста */
+  text-decoration: none; /* Убрать подчеркивание если это ссылка */
+  white-space: nowrap; /* Текст не переносится */
+  vertical-align: middle; /* Вертикальное выравнивание */
+  user-select: none; /* Запретить выделение текста */
+  
 }
 
 .btn:active {
@@ -40,14 +70,14 @@
 .btn--destructive { background: #E53E3E; color: #fff; }
 .btn--icon { padding: 0.5rem; width: 2.25rem; height: 2.25rem; display:inline-flex; align-items:center; justify-content:center; }
 
-.btn--small { height: 2.5rem; padding: 0 1rem; font-size: 0.875rem; }
-.btn--medium { height: 3rem; padding: 0 1.25rem; }
-.btn--large { height: 3.5rem; padding: 0 1.5rem; font-size: 1.0625rem; }
+.btn--small { height: 2.5rem; padding: 0 1rem; font-size: 0.875rem; font-weight: 500; }
+.btn--medium { height: 3rem; padding: 0 1.25rem; font-weight: 500;}
+.btn--large { height: 3.5rem; padding: 0 1.5rem; font-size: 1.0625rem; font-weight: 600;}
 
 .btn--full { width: 100%; display: flex; }
 
 /* Utilities used in onboarding */
-.container-centered { width: 100%; max-width: 490px; margin-left: auto; margin-right: auto; padding-left: 1rem; padding-right: 1rem; }
+.container-centered { width: 100%; max-width: 490px; margin-left: auto; margin-right: auto; padding-left: 1rem; padding-right: 1rem; display: flex; flex-direction: column; align-items: center;}
 .container-centered--no-max { max-width: none; }
 .skip-button { color: #718096; font-size: 0.875rem; background: transparent; padding: 0; }
 .dots { display: flex; justify-content: center; gap: 0.5rem; margin-bottom: 1.5rem; }
@@ -64,8 +94,8 @@
 /* Onboarding specific styles */
 .layout-vertical-between { display: flex; flex-direction: column; justify-content: space-between; min-height: 100vh; }
 .onboarding__image { font-size: 4rem; margin-bottom: 2rem; }
-.onboarding__title { margin-bottom: 1rem; color: #E8EAF0; font-size: 1.125rem; font-weight: 700; }
-.onboarding__desc { color: #718096; margin-bottom: 2rem; }
+.onboarding__title { margin-bottom: 1rem; color: #E8EAF0; font-size: 1.25rem; font-weight: 700; line-height: 1.3; text-align: center; }
+.onboarding__desc { color: #718096; margin-bottom: 2rem;   font-size: 1rem; line-height: 1.5; text-align: center;}
 .onboarding__demo { background: #F5F7FA; border-radius: 0.75rem; padding: 1.5rem; }
 .onboarding__level-row { display:flex; align-items:center; justify-content:space-between; }
 
@@ -147,7 +177,7 @@
 .pt-12 { padding-top: 3rem; }
 .w-full { width: 100%; }
 .max-w-390 { max-width: 390px; }
-.mt-4 { margin-top: 1rem; }
+.mt-4 { margin-top: 1rem; width: 100%; }
 .min-h-screen { min-height: 100vh; }
 .flex-1 { flex: 1; }
 
@@ -189,7 +219,7 @@
 /* Flip card */
 .flipcard-container { width: 100%; padding-left: 1rem; padding-right: 1rem; }
 .flipcard { position: relative; width: 100%; height: 24rem; cursor: pointer; perspective: 1000px; }
-.flipcard__inner { position: absolute; inset: 0; width: 100%; height: 100%; transform-style: preserve-3d; transition: transform 0.6s ease-in-out; }
+.flipcard__inner { position: absolute; inset: 0; width: 100%; height: 100%; transform-style: preserve-3d; }
 .flipcard__side { position: absolute; inset: 0; width: 100%; height: 100%; border-radius: 1.5rem; box-shadow: 0 10px 30px rgba(0,0,0,0.3); padding: 2rem; display:flex; flex-direction:column; align-items:center; justify-content:center; border:1px solid #2D3548; backface-visibility: hidden; -webkit-backface-visibility: hidden; }
 .flipcard__front { background: #252B3D; color: #E8EAF0; }
 .flipcard__back { background: #4A6FA5; color: #fff; transform: rotateY(180deg); }

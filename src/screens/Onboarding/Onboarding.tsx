@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import { Button } from '../components/Button';
-import { LevelIndicator } from '../components/LevelIndicator';
+import { Button } from '../../components/Button/Button';
+import { LevelIndicator } from '../../components/LevelIndicator';
 import { motion, AnimatePresence } from 'motion/react';
 
 interface OnboardingProps {

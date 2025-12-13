@@ -9,6 +9,8 @@
   font-size: 16px;
   font-family: var(--font-main);
   transition: background-color 0.2s;
+  align-items: center;
+  justify-content: center;
 }
 
 .button:hover {

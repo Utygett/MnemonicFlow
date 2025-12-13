@@ -1,3 +1,9 @@
+export enum CardType {
+  Flashcard = 'flashcard',
+  Cloze = 'cloze',
+  MultipleChoice = 'multiple-choice'
+}
+
 export interface Card {
   id: string;
   term: string;
@@ -7,6 +13,7 @@ export interface Card {
   lastReviewed?: Date;
   streak: number;
   deckId: string;
+  cardType: CardType;
 }
 
 export interface Deck {

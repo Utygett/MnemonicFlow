@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Input } from '../components/Input';
-import { Button } from '../components/Button';
+import { Button } from '../components/Button/Button';
 import { LevelIndicator } from '../components/LevelIndicator';
 import { X, Plus, Trash2 } from 'lucide-react';
 

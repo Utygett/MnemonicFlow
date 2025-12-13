@@ -1,6 +1,6 @@
 // @ts-ignore: CSS module without type declarations
 import styles from './Button.module.css';
-import { cn } from './ui/utils';
+import { cn } from '../ui/utils';
 
 interface ButtonProps {
   children: React.ReactNode;

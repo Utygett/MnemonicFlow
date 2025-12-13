@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Card, DifficultyRating } from '../types';
 import { FlipCard } from '../components/FlipCard';
 import { RatingButton } from '../components/RatingButton';
-import { Button } from '../components/Button';
+import { Button } from '../components/Button/Button';
 import { ProgressBar } from '../components/ProgressBar';
 import { X, ArrowUp } from 'lucide-react';
 
@@ -18,6 +18,13 @@ export function StudySession({ cards, currentIndex, onRate, onLevelUp, onClose }
   const [isFlipped, setIsFlipped] = useState(false);
   
   const currentCard = cards[currentIndex];
+  if (!currentCard) {
+    return (
+      <div className="study-page flex items-center justify-center">
+        <div className="text-muted">Карточки закончились</div>
+      </div>
+    );
+  }
   const progress = ((currentIndex) / cards.length) * 100;
   const canLevelUp = currentCard.currentLevel < currentCard.levels.length - 1; // Проверяем по длине массива
   
