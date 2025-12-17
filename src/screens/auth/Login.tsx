@@ -16,10 +16,8 @@ export function Login({ onSwitch }: { onSwitch: () => void }) {
   const handleSubmit = async () => {
     try {
       const data = await loginApi(email, password);
-      console.log('LOGIN RESPONSE:', data); // 👈
-      login(data.access_token);
+      await login(data.access_token); // теперь подтягивается currentUser
     } catch (e) {
-      console.error(e);
       alert('Ошибка входа');
     }
   };

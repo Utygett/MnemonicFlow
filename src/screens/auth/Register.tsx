@@ -13,14 +13,14 @@ export function Register({ onSwitch }: { onSwitch: () => void }) {
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
-const handleSubmit = async () => {
-  try {
-    const data = await registerApi(email, password);
-    login(data.access_token); // авто-вход после регистрации
-  } catch (e) {
-    alert('Ошибка регистрации');
-  }
-};
+  const handleSubmit = async () => {
+    try {
+      const data = await registerApi(email, password);
+      await login(data.access_token); // авто-вход + fetchMe
+    } catch (e) {
+      alert('Ошибка регистрации');
+    }
+  };
 
   return (
     <div className="min-h-screen bg-dark center-vertical px-4">
