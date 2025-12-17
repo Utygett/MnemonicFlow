@@ -243,9 +243,9 @@ export default function App() {
     );
   }
   
-  if (!hasCompletedOnboarding) {
-    return <Onboarding onComplete={() => setHasCompletedOnboarding(true)} />;
-  }
+  // if (!hasCompletedOnboarding) {
+  //   return <Onboarding onComplete={() => setHasCompletedOnboarding(true)} />;
+  // }
   
 if (isStudying) {
   // 1️⃣ Загрузка карточек
@@ -322,132 +322,136 @@ if (isStudying) {
   }
   
   return (
-    <div className="relative">
-      {/* Уведомление об обновлении PWA */}
-      <PWAUpdatePrompt />
-      
-      {/* Статус офлайн-режима */}
-      <OfflineStatus />
-      
-      {/* Индикатор статуса API */}
-      {apiHealth === 'unhealthy' && (
-        <div className="fixed top-4 right-4 z-30">
-          <div className="bg-red-500 text-white px-3 py-1 rounded-full text-sm">
-            API Offline
-          </div>
-        </div>
-      )}
-      
-      {/* PWA Badge (только если установлено как PWA) */}
-      {isPWA && (
-        <div className="fixed top-4 left-4 z-30">
-          <div className="pwa-badge">
-            PWA
-          </div>
-        </div>
-      )}
-      
-      {activeTab === 'home' && (
-        <Dashboard
-          statistics={statistics || {
-            cardsStudiedToday: 0,
-            timeSpentToday: 0,
-            currentStreak: 0,
-            totalCards: 0,
-            weeklyActivity: [0, 0, 0, 0, 0, 0, 0],
-            achievements: [],
-          }}
-          decks={decks}
-          onStartStudy={handleStartStudy}
-          onDeckClick={handleDeckClick}
-        />
-      )}
-      
-      {activeTab === 'study' && (
-        <div className="min-h-screen bg-dark pb-24">
-          <header className="page__header">
-            <div className="page__header-inner">
-              <h1 className="page__title">Обучение</h1>
+    <AuthProvider>
+      <AuthGate>
+        <div className="relative">
+          {/* Уведомление об обновлении PWA */}
+          <PWAUpdatePrompt />
+          
+          {/* Статус офлайн-режима */}
+          <OfflineStatus />
+          
+          {/* Индикатор статуса API */}
+          {apiHealth === 'unhealthy' && (
+            <div className="fixed top-4 right-4 z-30">
+              <div className="bg-red-500 text-white px-3 py-1 rounded-full text-sm">
+                API Offline
+              </div>
             </div>
-          </header>
-
-          <main className="container-centered max-w-390 py-6">
-            <div className="text-center py-12">
-              <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>📖</div>
-              <h2 style={{ marginBottom: '1rem', color: '#E8EAF0' }}>Создайте свою первую карточку</h2>
-              <p style={{ color: '#9CA3AF', marginBottom: '1.5rem' }}>
-                Начните изучение с создания карточек
-              </p>
-              <button onClick={() => setIsCreatingCard(true)} className="btn-primary">Создать карточку</button>
-
-              {/* PWA Installation Hint */}
-              {!isPWA && (
-                <div className="mt-8 card">
-                  <p style={{ color: '#9CA3AF', marginBottom: '0.5rem' }}>
-                    💡 Установите приложение для работы офлайн
-                  </p>
-                  <p style={{ color: '#6B7280', fontSize: '0.75rem' }}>
-                    Нажмите "Установить" в меню браузера
-                  </p>
+          )}
+          
+          {/* PWA Badge (только если установлено как PWA) */}
+          {isPWA && (
+            <div className="fixed top-4 left-4 z-30">
+              <div className="pwa-badge">
+                PWA
+              </div>
+            </div>
+          )}
+          
+          {activeTab === 'home' && (
+            <Dashboard
+              statistics={statistics || {
+                cardsStudiedToday: 0,
+                timeSpentToday: 0,
+                currentStreak: 0,
+                totalCards: 0,
+                weeklyActivity: [0, 0, 0, 0, 0, 0, 0],
+                achievements: [],
+              }}
+              decks={decks}
+              onStartStudy={handleStartStudy}
+              onDeckClick={handleDeckClick}
+            />
+          )}
+          
+          {activeTab === 'study' && (
+            <div className="min-h-screen bg-dark pb-24">
+              <header className="page__header">
+                <div className="page__header-inner">
+                  <h1 className="page__title">Обучение</h1>
                 </div>
-              )}
+              </header>
+
+              <main className="container-centered max-w-390 py-6">
+                <div className="text-center py-12">
+                  <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>📖</div>
+                  <h2 style={{ marginBottom: '1rem', color: '#E8EAF0' }}>Создайте свою первую карточку</h2>
+                  <p style={{ color: '#9CA3AF', marginBottom: '1.5rem' }}>
+                    Начните изучение с создания карточек
+                  </p>
+                  <button onClick={() => setIsCreatingCard(true)} className="btn-primary">Создать карточку</button>
+
+                  {/* PWA Installation Hint */}
+                  {!isPWA && (
+                    <div className="mt-8 card">
+                      <p style={{ color: '#9CA3AF', marginBottom: '0.5rem' }}>
+                        💡 Установите приложение для работы офлайн
+                      </p>
+                      <p style={{ color: '#6B7280', fontSize: '0.75rem' }}>
+                        Нажмите "Установить" в меню браузера
+                      </p>
+                    </div>
+                  )}
+                </div>
+              </main>
             </div>
-          </main>
-        </div>
-      )}
-      
-      {activeTab === 'stats' && statistics && (
-        <Statistics statistics={statistics} decks={decks} />
-      )}
-      
-      {activeTab === 'profile' && (
-        <div className="min-h-screen bg-dark pb-24">
-          <div className="page__header px-4 pt-12 pb-6">
-            <div className="page__header-inner">
-              <h1 className="page__title">Профиль</h1>
-            </div>
-          </div>
-          <div className="p-4 container-centered max-w-390">
-            <div className="card card--center">
-              <div className="avatar avatar--xl avatar--accent">У</div>
-              <h2 className="mb-2 text-[#E8EAF0]">Пользователь</h2>
-              <p className="text-[#9CA3AF]">user@example.com</p>
-              
-              {/* PWA Status */}
-              <div className="mt-6 pt-6 border-t border-[#2D3548]">
-                <h3 className="text-sm font-medium text-[#E8EAF0] mb-3">Настройки приложения</h3>
-                <div className="space-y-3">
-                  <div className="flex justify-between items-center">
-                    <span className="text-sm text-[#9CA3AF]">API Статус</span>
-                    <span className={`text-sm ${apiHealth === 'healthy' ? 'text-green-500' : 'text-red-500'}`}>
-                      {apiHealth === 'healthy' ? '✓ Работает' : '✗ Ошибка'}
-                    </span>
-                  </div>
-                  <div className="flex justify-between items-center">
-                    <span className="text-sm text-[#9CA3AF]">Версия</span>
-                    <span className="text-sm text-[#E8EAF0]">1.0.0</span>
-                  </div>
-                  <div className="flex justify-between items-center">
-                    <span className="text-sm text-[#9CA3AF]">Режим</span>
-                    <span className="text-sm text-accent">
-                      {isPWA ? 'Установлено как PWA' : 'Веб-версия'}
-                    </span>
-                  </div>
-                  <div className="flex justify-between items-center">
-                    <span className="text-sm text-[#9CA3AF]">Офлайн доступ</span>
-                    <span className="text-sm text-[#38A169]">
-                      {isPWA ? 'Доступно' : 'Требуется установка'}
-                    </span>
+          )}
+          
+          {activeTab === 'stats' && statistics && (
+            <Statistics statistics={statistics} decks={decks} />
+          )}
+          
+          {activeTab === 'profile' && (
+            <div className="min-h-screen bg-dark pb-24">
+              <div className="page__header px-4 pt-12 pb-6">
+                <div className="page__header-inner">
+                  <h1 className="page__title">Профиль</h1>
+                </div>
+              </div>
+              <div className="p-4 container-centered max-w-390">
+                <div className="card card--center">
+                  <div className="avatar avatar--xl avatar--accent">У</div>
+                  <h2 className="mb-2 text-[#E8EAF0]">Пользователь</h2>
+                  <p className="text-[#9CA3AF]">user@example.com</p>
+                  
+                  {/* PWA Status */}
+                  <div className="mt-6 pt-6 border-t border-[#2D3548]">
+                    <h3 className="text-sm font-medium text-[#E8EAF0] mb-3">Настройки приложения</h3>
+                    <div className="space-y-3">
+                      <div className="flex justify-between items-center">
+                        <span className="text-sm text-[#9CA3AF]">API Статус</span>
+                        <span className={`text-sm ${apiHealth === 'healthy' ? 'text-green-500' : 'text-red-500'}`}>
+                          {apiHealth === 'healthy' ? '✓ Работает' : '✗ Ошибка'}
+                        </span>
+                      </div>
+                      <div className="flex justify-between items-center">
+                        <span className="text-sm text-[#9CA3AF]">Версия</span>
+                        <span className="text-sm text-[#E8EAF0]">1.0.0</span>
+                      </div>
+                      <div className="flex justify-between items-center">
+                        <span className="text-sm text-[#9CA3AF]">Режим</span>
+                        <span className="text-sm text-accent">
+                          {isPWA ? 'Установлено как PWA' : 'Веб-версия'}
+                        </span>
+                      </div>
+                      <div className="flex justify-between items-center">
+                        <span className="text-sm text-[#9CA3AF]">Офлайн доступ</span>
+                        <span className="text-sm text-[#38A169]">
+                          {isPWA ? 'Доступно' : 'Требуется установка'}
+                        </span>
+                      </div>
+                    </div>
                   </div>
                 </div>
               </div>
             </div>
-          </div>
+          )}
+          
+          <BottomNav activeTab={activeTab} onTabChange={setActiveTab} />
+          <InstallPrompt />
         </div>
-      )}
-      
-      <BottomNav activeTab={activeTab} onTabChange={setActiveTab} />
-      <InstallPrompt />
-    </div>
+      </AuthGate>
+    </AuthProvider>
   );
 }

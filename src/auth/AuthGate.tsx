@@ -1,3 +1,4 @@
+// src/auth/AuthGate.tsx
 import React, { useState } from 'react';
 import { useAuth } from './AuthContext';
 import { Login } from '../screens/Auth/Login';
