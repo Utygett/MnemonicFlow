@@ -221,7 +221,6 @@ function MainAppContent() {
       if (!token) throw new Error('No auth token');
 
       const cardsFromApi = await ApiClient.getDeckCards(deckId, token);
-
       const normalizedCards = cardsFromApi.map((c: any) => ({
         id: c.card_id,
         title: c.title,
@@ -231,8 +230,10 @@ function MainAppContent() {
 
       setDeckCards(normalizedCards);
 
-      // Запуск сессии только после того, как карточки реально есть
-      if (normalizedCards.length > 0) setIsStudying(true);
+      if (normalizedCards.length > 0) {
+        setActiveDeckId(deckId);
+        setIsStudying(true); // Запуск сессии только после загрузки
+      }
 
     } catch (err) {
       console.error('Failed to load deck cards:', err);
@@ -240,6 +241,7 @@ function MainAppContent() {
       setLoadingDeckCards(false);
     }
   };
+
 
 
   

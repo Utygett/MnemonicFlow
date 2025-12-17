@@ -63,7 +63,7 @@ export class ApiClient {
     return res.json();  
   }
   static async reviewCard(cardId: string, rating: DifficultyRating) {
-    const token = localStorage.getItem('token');
+    const token = localStorage.getItem('access_token');
     if (!token) throw new Error('No auth token');
 
     const res = await fetch(
