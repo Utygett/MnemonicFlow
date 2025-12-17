@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Card, DifficultyRating } from '../types';
+import { StudyCard, DifficultyRating } from '../types';
 import { FlipCard } from '../components/FlipCard';
 import { RatingButton } from '../components/RatingButton';
 import { Button } from '../components/Button/Button';
@@ -7,14 +7,14 @@ import { ProgressBar } from '../components/ProgressBar';
 import { X, ArrowUp } from 'lucide-react';
 
 interface StudySessionProps {
-  cards: Card[];
+  cards: StudyCard[];
   currentIndex: number;
   onRate: (rating: DifficultyRating) => void;
   onLevelUp: () => void;
   onClose: () => void;
 }
 
-export function StudySession({ cards, currentIndex, onRate, onLevelUp, onClose }: StudySessionProps) {
+export function StudySession({ cards, currentIndex, onRate, onClose }: StudySessionProps) {
   const [isFlipped, setIsFlipped] = useState(false);
   
   const currentCard = cards[currentIndex];
@@ -26,19 +26,12 @@ export function StudySession({ cards, currentIndex, onRate, onLevelUp, onClose }
     );
   }
   const progress = ((currentIndex) / cards.length) * 100;
-  const canLevelUp = currentCard.currentLevel < currentCard.levels.length - 1; // Проверяем по длине массива
+  const canLevelUp = false; // Проверяем по длине массива
   
   const handleRate = (rating: DifficultyRating) => {
     setIsFlipped(false);
     setTimeout(() => {
       onRate(rating);
-    }, 300);
-  };
-  
-  const handleLevelUp = () => {
-    setIsFlipped(false);
-    setTimeout(() => {
-      onLevelUp();
     }, 300);
   };
   
@@ -85,7 +78,7 @@ export function StudySession({ cards, currentIndex, onRate, onLevelUp, onClose }
         ) : (
           <div className="study__actions-inner">
             {/* Level Up Button */}
-            {canLevelUp && (
+            {/* {canLevelUp && (
               <Button
                 onClick={handleLevelUp}
                 variant="secondary"
@@ -96,7 +89,7 @@ export function StudySession({ cards, currentIndex, onRate, onLevelUp, onClose }
                 <ArrowUp size={20} />
                 Попробовать сложнее
               </Button>
-            )}
+            )} */}
             
             {/* Rating Buttons */}
             <div className="rating-row">

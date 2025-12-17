@@ -9,7 +9,7 @@ import { Statistics } from './screens/Statistics';
 import { Onboarding } from './screens/Onboarding/Onboarding';
 import { AuthProvider } from './auth/AuthContext';
 import { AuthGate } from './auth/AuthGate';
-import { CardType, Card, Deck, Statistics as StatsType, DifficultyRating } from './types';
+import { CardType, Card, Deck, Statistics as StatsType, DifficultyRating, StudyCard } from './types';
 import { useStatistics, useStudySession } from './hooks';
 import useDecks from './hooks/useDecks';
 import { ApiClient } from './api/client';
@@ -111,22 +111,23 @@ function MainAppContent() {
   const [isPWA, setIsPWA] = useState(false);
   const [apiHealth, setApiHealth] = useState<'healthy' | 'unhealthy' | 'checking'>('checking');
   
+  const [activeDeckId, setActiveDeckId] = useState<string | null>(null);
+  const [deckCards, setDeckCards] = useState<StudyCard[]>([]);
+  const [loadingDeckCards, setLoadingDeckCards] = useState(false);
+
   // Используем хуки для получения данных с API
   const { decks, loading: decksLoading, error: decksError, refresh: refreshDecks } = useDecks();
   const { statistics, loading: statsLoading, error: statsError, refresh: refreshStats } = useStatistics();
-  const { 
-    session, 
-    currentCard, 
-    isCompleted, 
-    loading: sessionLoading, 
-    error: sessionError, 
+  const {
+    cards,
+    currentIndex,
+    currentCard,
+    isCompleted,
     rateCard,
-    levelUpCard,
-    resetSession 
-  } = useStudySession();
-  const [activeDeckId, setActiveDeckId] = useState<string | null>(null);
-  const [deckCards, setDeckCards] = useState<Card[]>([]);
-  const [loadingDeckCards, setLoadingDeckCards] = useState(false);
+    resetSession
+  } = useStudySession(deckCards);
+
+  
 
   
   // Проверяем, было ли приложение установлено как PWA
@@ -216,8 +217,6 @@ function MainAppContent() {
   const handleDeckClick = async (deckId: string) => {
     try {
       setLoadingDeckCards(true);
-      setActiveDeckId(deckId);
-
       const token = localStorage.getItem('access_token');
       if (!token) throw new Error('No auth token');
 
@@ -231,13 +230,17 @@ function MainAppContent() {
       }));
 
       setDeckCards(normalizedCards);
-      setIsStudying(true);
+
+      // Запуск сессии только после того, как карточки реально есть
+      if (normalizedCards.length > 0) setIsStudying(true);
+
     } catch (err) {
       console.error('Failed to load deck cards:', err);
     } finally {
       setLoadingDeckCards(false);
     }
   };
+
 
   
   // Показываем загрузку
@@ -277,20 +280,14 @@ function MainAppContent() {
   
 if (isStudying) {
   // 1️⃣ Загрузка карточек
-  if (loadingDeckCards) {
-    return (
-      <div className="min-h-screen bg-dark flex items-center justify-center">
-        <div className="text-[#9CA3AF]">Загрузка карточек колоды…</div>
-      </div>
-    );
-  }
-  if (sessionLoading) {
-    return (
-      <div className="min-h-screen bg-dark flex items-center justify-center">
-        <div className="text-[#9CA3AF]">Загрузка карточек…</div>
-      </div>
-    );
-  }
+  
+  if (loadingDeckCards || deckCards.length === 0) {
+      return (
+        <div className="min-h-screen bg-dark flex items-center justify-center">
+          <div className="text-[#9CA3AF]">Загрузка карточек колоды…</div>
+        </div>
+      );
+    }
 
   // 2️⃣ Сессия завершена
   if (isCompleted) {
@@ -317,7 +314,7 @@ if (isStudying) {
   }
 
   // 3️⃣ Нет карточек
-  if (session.cards.length === 0) {
+  if (cards.length === 0) {
     return (
       <div className="min-h-screen bg-dark flex items-center justify-center">
         <div className="text-[#9CA3AF]">Нет карточек для изучения</div>
@@ -329,10 +326,9 @@ if (isStudying) {
   return (
     <>
       <StudySession
-        cards={deckCards}
-        currentIndex={0}
+        cards={cards}
+        currentIndex={currentIndex}
         onRate={handleRate}
-        onLevelUp={levelUpCard}
         onClose={handleCloseStudy}
       />
       <PWAUpdatePrompt />

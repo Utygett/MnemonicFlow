@@ -16,7 +16,6 @@ export interface StudyCard {
   id: string;
   title: string;
   levels: CardLevel[];
-  currentLevel: number;
 }
 
 export interface Card {
