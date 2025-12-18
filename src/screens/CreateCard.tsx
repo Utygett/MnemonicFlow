@@ -1,19 +1,28 @@
-import React, { useState } from 'react';
+// src/screens/CreateCard.tsx
+import React, { useMemo, useState } from 'react';
 import { Input } from '../components/Input';
 import { Button } from '../components/Button/Button';
 import { LevelIndicator } from '../components/LevelIndicator';
 import { X, Plus, Trash2 } from 'lucide-react';
+import type { DeckSummary } from '../types';
+
+type LevelQA = { question: string; answer: string };
 
 interface CreateCardProps {
-  onSave: (cardData: any) => void;
+  decks: DeckSummary[];
+  onSave: (cardData: { deckId: string; term: string; levels: LevelQA[] }) => void;
   onCancel: () => void;
 }
 
-export function CreateCard({ onSave, onCancel }: CreateCardProps) {
+export function CreateCard({ decks, onSave, onCancel }: CreateCardProps) {
   const [term, setTerm] = useState('');
   const [activeLevel, setActiveLevel] = useState(0);
-  const [levels, setLevels] = useState<string[]>(['']); // Начинаем с одного уровня
-  
+
+  const defaultDeckId = useMemo(() => decks?.[0]?.deck_id ?? '', [decks]);
+  const [deckId, setDeckId] = useState<string>(defaultDeckId);
+
+  const [levels, setLevels] = useState<LevelQA[]>([{ question: '', answer: '' }]);
+
   const levelDescriptions = [
     'Простое определение',
     'Развернутое определение',
@@ -26,40 +35,46 @@ export function CreateCard({ onSave, onCancel }: CreateCardProps) {
     'Мастерство',
     'Инновации',
   ];
-  
+
   const handleAddLevel = () => {
     if (levels.length < 10) {
-      setLevels([...levels, '']);
+      setLevels(prev => [...prev, { question: '', answer: '' }]);
       setActiveLevel(levels.length);
     }
   };
-  
+
   const handleRemoveLevel = (index: number) => {
-    if (levels.length > 1) {
-      const newLevels = levels.filter((_, i) => i !== index);
-      setLevels(newLevels);
-      if (activeLevel >= newLevels.length) {
-        setActiveLevel(newLevels.length - 1);
-      }
-    }
+    if (levels.length <= 1) return;
+    const next = levels.filter((_, i) => i !== index);
+    setLevels(next);
+    if (activeLevel >= next.length) setActiveLevel(next.length - 1);
   };
-  
-  const handleLevelChange = (index: number, value: string) => {
-    const newLevels = [...levels];
-    newLevels[index] = value;
-    setLevels(newLevels);
+
+  const patchLevel = (index: number, patch: Partial<LevelQA>) => {
+    const next = [...levels];
+    next[index] = { ...next[index], ...patch };
+    setLevels(next);
   };
-  
+
+  const cleanedLevels = useMemo(
+    () =>
+      levels
+        .map(l => ({ question: l.question.trim(), answer: l.answer.trim() }))
+        .filter(l => l.question && l.answer),
+    [levels]
+  );
+
+  const canSave = term.trim() && deckId && cleanedLevels.length > 0;
+
   const handleSave = () => {
-    // Проверяем, что хотя бы первый уровень заполнен
-    if (term && levels[0]) {
-      onSave({ term, levels: levels.filter(l => l.trim() !== '') });
-    }
+    if (!canSave) return;
+    onSave({ deckId, term: term.trim(), levels: cleanedLevels });
   };
-  
+
+  const active = levels[activeLevel];
+
   return (
     <div className="min-h-screen bg-dark pb-24">
-      {/* Header */}
       <div className="page__header" style={{ position: 'sticky', top: 0, zIndex: 10 }}>
         <div className="page__header-inner">
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
@@ -70,24 +85,50 @@ export function CreateCard({ onSave, onCancel }: CreateCardProps) {
             <div style={{ width: 24 }} />
           </div>
         </div>
-  </div>
-  <main className="container-centered max-w-390 space-y-6 py-6">
-        {/* Term Input */}
+      </div>
+
+      <main className="container-centered max-w-390 space-y-6 py-6">
+        {/* Deck select */}
+        <div className="form-row">
+          <label className="form-label">Колода</label>
+          <select
+            value={deckId}
+            onChange={(e) => setDeckId(e.target.value)}
+            className="input"
+            disabled={decks.length === 0}
+          >
+            {decks.length === 0 ? (
+              <option value="">Нет доступных колод</option>
+            ) : (
+              decks.map(d => (
+                <option key={d.deck_id} value={d.deck_id}>
+                  {d.title}
+                </option>
+              ))
+            )}
+          </select>
+        </div>
+
+        {/* Card title/topic */}
         <Input
           value={term}
           onChange={setTerm}
-          label="Термин / Вопрос"
+          label="Название / Тема карточки"
           placeholder="Например: Фотосинтез"
         />
-        
-        {/* Level Tabs */}
+
+        {/* Level tabs */}
         <div>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.75rem' }}>
             <label style={{ fontSize: '0.875rem', color: '#E8EAF0' }}>
               Уровни сложности ({levels.length})
             </label>
+
             {levels.length < 10 && (
-              <button onClick={handleAddLevel} style={{ display: 'flex', alignItems: 'center', gap: 8, color: '#4A6FA5', background: 'transparent', border: 0 }}>
+              <button
+                onClick={handleAddLevel}
+                style={{ display: 'flex', alignItems: 'center', gap: 8, color: '#4A6FA5', background: 'transparent', border: 0 }}
+              >
                 <Plus size={16} />
                 Добавить уровень
               </button>
@@ -101,76 +142,57 @@ export function CreateCard({ onSave, onCancel }: CreateCardProps) {
                 onClick={() => setActiveLevel(index)}
                 className={`level-tab ${activeLevel === index ? 'level-tab--active' : 'level-tab--inactive'}`}
               >
-                <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                  <span style={{ fontSize: '0.875rem' }}>Уровень {index + 1}</span>
-                </div>
+                <span style={{ fontSize: '0.875rem' }}>Уровень {index + 1}</span>
               </button>
             ))}
           </div>
-          
-          {/* Level Content */}
+
+          {/* Active level editor */}
           <div className="card">
             <div className="flex items-center justify-between">
-              <div className="flex-1">
-                <span className="text-sm text-[#9CA3AF]">
-                  {levelDescriptions[activeLevel] || `Уровень ${activeLevel + 1}`}
-                </span>
-              </div>
+              <span className="text-sm text-[#9CA3AF]">
+                {levelDescriptions[activeLevel] || `Уровень ${activeLevel + 1}`}
+              </span>
+
               <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                 <LevelIndicator currentLevel={Math.min(activeLevel, 3) as 0 | 1 | 2 | 3} size="small" />
                 {levels.length > 1 && (
-                  <button onClick={() => handleRemoveLevel(activeLevel)} style={{ color: '#E53E3E', padding: 4, background: 'transparent', border: 0 }}>
+                  <button
+                    onClick={() => handleRemoveLevel(activeLevel)}
+                    style={{ color: '#E53E3E', padding: 4, background: 'transparent', border: 0 }}
+                  >
                     <Trash2 size={16} />
                   </button>
                 )}
               </div>
             </div>
-            
+
             <Input
-              value={levels[activeLevel]}
-              onChange={(value) => handleLevelChange(activeLevel, value)}
-              placeholder={`Введите содержание для уровня ${activeLevel + 1}`}
+              value={active.question}
+              onChange={(v) => patchLevel(activeLevel, { question: v })}
+              label={`Вопрос (уровень ${activeLevel + 1})`}
+              placeholder="Например: Объясни фотосинтез простыми словами"
+              multiline
+              rows={3}
+            />
+
+            <Input
+              value={active.answer}
+              onChange={(v) => patchLevel(activeLevel, { answer: v })}
+              label={`Ответ (уровень ${activeLevel + 1})`}
+              placeholder="Ответ для этого уровня"
               multiline
               rows={5}
             />
           </div>
         </div>
-        
-        {/* Preview */}
-        <div>
-          <label style={{ display: 'block', marginBottom: '0.75rem', fontSize: '0.875rem', color: '#E8EAF0' }}>Предпросмотр</label>
-          <div className="card" style={{ padding: '1.5rem', minHeight: 150, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
-            {term ? (
-              <>
-                <LevelIndicator currentLevel={0} size="medium" />
-                <p style={{ marginTop: '1rem', textAlign: 'center', fontSize: '1.125rem', color: '#E8EAF0' }}>{term}</p>
-                {levels[0] && (
-                  <p style={{ marginTop: '0.5rem', textAlign: 'center', fontSize: '0.875rem', color: '#9CA3AF' }}>
-                    {levels[0].substring(0, 50)}{levels[0].length > 50 ? '...' : ''}
-                  </p>
-                )}
-                <div style={{ marginTop: '1rem', display: 'flex', alignItems: 'center', gap: 8 }}>
-                  <span style={{ fontSize: '0.75rem', color: '#9CA3AF' }}>{levels.filter(l => l.trim() !== '').length} уровней</span>
-                </div>
-              </>
-            ) : (
-              <p style={{ color: '#9CA3AF', fontSize: '0.875rem' }}>Предпросмотр появится после заполнения</p>
-            )}
-          </div>
-        </div>
-        
+
         {/* Actions */}
         <div style={{ display: 'flex', gap: '0.75rem', paddingTop: '1rem' }}>
           <Button onClick={onCancel} variant="secondary" size="large" fullWidth>
             Отмена
           </Button>
-          <Button
-            onClick={handleSave}
-            variant="primary"
-            size="large"
-            fullWidth
-            disabled={!term || !levels[0]}
-          >
+          <Button onClick={handleSave} variant="primary" size="large" fullWidth disabled={!canSave}>
             Сохранить
           </Button>
         </div>

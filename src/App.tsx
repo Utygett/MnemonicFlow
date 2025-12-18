@@ -196,23 +196,19 @@ function MainAppContent() {
     resetSession();
   };
   
-  const handleSaveCard = async (cardData: any) => {
-    try {
-      await ApiClient.createCard({
-        term: cardData.term,
-        levels: cardData.levels,
-        deckId: cardData.deckId || '1',
-        cardType: CardType.Flashcard,
-      });
-      
-      // Обновляем данные после создания карточки
-      refreshDecks();
-      refreshStats();
-      setIsCreatingCard(false);
-    } catch (error) {
-      console.error('Error creating card:', error);
-    }
+  const handleSaveCard = async (cardData: { deckId: string; term: string; levels: Array<{question: string; answer: string}> }) => {
+    await ApiClient.createCard({
+      deck_id: cardData.deckId,
+      title: cardData.term,
+      type: 'flashcard',
+      levels: cardData.levels,
+    });
+
+    refreshDecks();
+    refreshStats();
+    setIsCreatingCard(false);
   };
+
   
   const handleDeckClick = async (deckId: string) => {
     try {
@@ -345,6 +341,7 @@ if (isStudying) {
     return (
       <>
         <CreateCard
+          decks={decks}
           onSave={handleSaveCard}
           onCancel={() => setIsCreatingCard(false)}
         />

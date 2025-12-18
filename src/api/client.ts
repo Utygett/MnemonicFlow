@@ -85,4 +85,31 @@ export class ApiClient {
 
     return res.json();
   }
+
+  static async createCard(payload: {
+  deck_id: string;
+  title: string;
+  type: string;
+  levels: Array<{ question: string; answer: string }>;
+}) {
+  const token = localStorage.getItem('access_token');
+  if (!token) throw new Error('No auth token');
+
+  const res = await fetch(`${this.API_BASE_URL}/cards/`, {
+    method: 'POST',
+    headers: {
+      Authorization: `Bearer ${token}`,
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(payload),
+  });
+
+  if (!res.ok) {
+    const text = await res.text();
+    throw new Error(`Failed to create card: ${text}`);
+  }
+
+  return res.json();
+}
+
 }
