@@ -91,27 +91,18 @@ export function EditCardFlow({ decks, onCancel, onDone }: Props) {
 
   const canSave = selectedCard && levels.some(l => l.question.trim() && l.answer.trim());
 
-  const save = async () => {
+    const save = async () => {
     if (!selectedCard) return;
 
     const cleaned = levels
-      .map(l => ({ question: l.question.trim(), answer: l.answer.trim() }))
-      .filter(l => l.question && l.answer);
+        .map(l => ({ question: l.question.trim(), answer: l.answer.trim() }))
+        .filter(l => l.question && l.answer);
 
-    // 1) удалить старые уровни (только существующие индексы)
-    const oldIndices = (selectedCard.levels ?? []).map(l => l.level_index);
-    await Promise.all(oldIndices.map(i => ApiClient.deleteCardLevel(selectedCard.card_id, i)));
-
-    // 2) создать новые уровни подряд 0..N-1
-    await Promise.all(
-      cleaned.map((lvl, i) => ApiClient.upsertCardLevel(selectedCard.card_id, i, lvl))
-    );
-
-    // 3) синхронизировать max_level
-    await ApiClient.updateCardMaxLevel(selectedCard.card_id, cleaned.length);
+    await ApiClient.replaceCardLevels(selectedCard.card_id, cleaned);
 
     onDone();
-  };
+    };
+
 
   return (
     <div className="min-h-screen bg-dark pb-24">
