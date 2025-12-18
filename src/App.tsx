@@ -6,6 +6,7 @@ import { Dashboard } from './screens/Dashboard';
 import { StudySession } from './screens/StudySession';
 import { CreateCard } from './screens/CreateCard';
 import { Statistics } from './screens/Statistics';
+import { EditCardFlow } from './screens/EditCardFlow';
 import { Onboarding } from './screens/Onboarding/Onboarding';
 import { AuthProvider } from './auth/AuthContext';
 import { AuthGate } from './auth/AuthGate';
@@ -126,6 +127,7 @@ function MainAppContent() {
     rateCard,
     resetSession
   } = useStudySession(deckCards);
+  const [isEditingCard, setIsEditingCard] = useState(false);
 
   
 
@@ -351,6 +353,25 @@ if (isStudying) {
     );
   }
   
+  if (isEditingCard) {
+    return (
+      <>
+        <EditCardFlow
+          decks={decks}
+          onCancel={() => setIsEditingCard(false)}
+          onDone={() => {
+            refreshDecks();
+            refreshStats();
+            setIsEditingCard(false);
+          }}
+        />
+        <PWAUpdatePrompt />
+        <OfflineStatus />
+      </>
+    );
+  }
+
+
   return (
         <div className="relative">
           {/* Уведомление об обновлении PWA */}
@@ -408,8 +429,15 @@ if (isStudying) {
                   <p style={{ color: '#9CA3AF', marginBottom: '1.5rem' }}>
                     Начните изучение с создания карточек
                   </p>
-                  <button onClick={() => setIsCreatingCard(true)} className="btn-primary">Создать карточку</button>
+                    <div className="flex flex-col gap-3">
+                      <button onClick={() => setIsCreatingCard(true)} className="btn-primary">
+                        Создать карточку
+                      </button>
 
+                      <button onClick={() => setIsEditingCard(true)} className="btn-primary">
+                        Редактировать карточку
+                      </button>
+                    </div>
                   {/* PWA Installation Hint */}
                   {!isPWA && (
                     <div className="mt-8 card">
