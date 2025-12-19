@@ -4,7 +4,7 @@ import { DeckSummary } from '../types';
 
 
 export class ApiClient {
-  static API_BASE_URL = 'http://localhost:8000';
+  static API_BASE_URL = 'http://localhost:8000/api';
 
   // Получаем колоды пользователя
   static async getUserDecks(token: string): Promise<DeckSummary[]> {
@@ -25,12 +25,6 @@ export class ApiClient {
   // ------------------------
   // MOCK API для теста (Decks/Statistics/ReviewCards)
   // ------------------------
-  static async getDecks(): Promise<Deck[]> {
-    return [
-      { id: '1', name: 'Колода 1', cards: [] },
-      { id: '2', name: 'Колода 2', cards: [] },
-    ];
-  }
 
   static async getStatistics(): Promise<Statistics> {
     return {
@@ -202,5 +196,31 @@ static async getReviewSession(limit = 20) {
   if (!res.ok) throw new Error(await res.text());
   return res.json();
 }
+
+  static async createDeck(payload: {
+    title: string;
+    description?: string | null;
+    color?: string | null;
+  }): Promise<DeckSummary> {
+    const token = localStorage.getItem('access_token');
+    if (!token) throw new Error('No auth token');
+
+    const res = await fetch(`${this.API_BASE_URL}/decks/`, {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${token}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(payload),
+    });
+
+    if (!res.ok) {
+      const text = await res.text();
+      throw new Error(`Failed to create deck: ${text}`);
+    } 
+
+    return res.json();
+  }
+
 
 }

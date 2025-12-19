@@ -17,7 +17,8 @@ export interface DashboardProps {
   onStartStudy: () => void;
   onDeckClick: (deckId: string) => void;
 
-  resumeSession?: ResumeSessionProps; // <-- новое
+  resumeSession?: ResumeSessionProps;
+  onCreateDeck: () => void;
 }
 
 export function Dashboard({
@@ -26,6 +27,7 @@ export function Dashboard({
   onStartStudy,
   onDeckClick,
   resumeSession,
+  onCreateDeck,
 }: DashboardProps) {
   return (
     <div className="min-h-screen bg-dark pb-24">
@@ -106,6 +108,9 @@ export function Dashboard({
           ))}
         </div>
       </div>
+      <Button onClick={onCreateDeck} variant="primary" size="large" fullWidth>
+        Создать колоду
+      </Button>
     </div>
   );
 }

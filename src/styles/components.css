@@ -1017,3 +1017,10 @@ h1, h2, h3, h4, h5, h6, p {
 .icon-btn:active {
   transform: scale(0.96);
 }
+
+.actionsStack__study {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;     /* расстояние между кнопками */
+  margin-top: 20px;
+}

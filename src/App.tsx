@@ -16,6 +16,7 @@ import { useStatistics, useStudySession } from './hooks';
 import useDecks from './hooks/useDecks';
 import { ApiClient } from './api/client';
 import { loadLastSession, loadSession, saveSession, clearSession, PersistedSession } from './utils/sessionStore';
+import { CreateDeck } from './screens/CreateDeck';
 
 
 // Компонент для отображения обновлений PWA
@@ -143,6 +144,7 @@ function MainAppContent() {
   weeklyActivity: [0,0,0,0,0,0,0],
   achievements: [],
 };
+const [isCreatingDeck, setIsCreatingDeck] = useState(false);
 
   // Проверяем, было ли приложение установлено как PWA
   useEffect(() => {
@@ -514,6 +516,19 @@ if (isStudying) {
     );
   }
   
+    if (isCreatingDeck) {
+    return (
+      <CreateDeck
+        onCancel={() => setIsCreatingDeck(false)}
+        onSave={(createdDeckId) => {
+          refreshDecks();
+          setIsCreatingDeck(false);
+        }}
+      />
+    );
+  }
+
+
   if (isEditingCard) {
     return (
       <>
@@ -578,6 +593,7 @@ if (isStudying) {
                   }
                 : undefined
             }
+            onCreateDeck={() => setIsCreatingDeck(true)}
           />
           )}
           
@@ -596,7 +612,7 @@ if (isStudying) {
                   <p style={{ color: '#9CA3AF', marginBottom: '1.5rem' }}>
                     Начните изучение с создания карточек
                   </p>
-                    <div className="flex flex-col gap-3">
+                    <div className="actionsStack__study">
                       <button onClick={() => setIsCreatingCard(true)} className="btn-primary">
                         Создать карточку
                       </button>
