@@ -42,9 +42,13 @@ export function StudySession({ cards, currentIndex, onRate, onClose, onLevelUp, 
   };
   
   if (!currentCard) {
-    return null;
+    return (
+      <div className="study-page flex items-center justify-center">
+        <div className="text-muted">Карточки закончились</div>
+      </div>
+    );
   }
-  
+
   return (
     <div className="study-page">
       {/* Header */}
@@ -68,6 +72,8 @@ export function StudySession({ cards, currentIndex, onRate, onClose, onLevelUp, 
           card={currentCard}
           isFlipped={isFlipped}
           onFlip={handleFlip}
+          onLevelUp={onLevelUp}
+          onLevelDown={onLevelDown}
         />
       </div>
       
@@ -79,28 +85,6 @@ export function StudySession({ cards, currentIndex, onRate, onClose, onLevelUp, 
           </Button>
         ) : (
           <div className="study__actions-inner">
-            {/* Level Up Button */}
-            <div className="flex gap-3 mb-3">
-              <Button
-                onClick={onLevelDown}
-                variant="secondary"
-                size="medium"
-                fullWidth
-                disabled={currentCard.activeLevel <= 0}
-              >
-                Проще
-              </Button>
-
-              <Button
-                onClick={onLevelUp}
-                variant="secondary"
-                size="medium"
-                fullWidth
-                disabled={currentCard.activeLevel >= currentCard.levels.length - 1}
-              >
-                Сложнее
-              </Button>
-            </div>
             {/* Rating Buttons */}
             <div className="rating-row">
               <RatingButton
