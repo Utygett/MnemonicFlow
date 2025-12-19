@@ -1,6 +1,5 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { StudyCard } from '../types';
-import { LevelIndicator } from './LevelIndicator';
 import { motion } from 'motion/react';
 
 interface FlipCardProps {
@@ -10,19 +9,13 @@ interface FlipCardProps {
 }
 
 export function FlipCard({ card, isFlipped, onFlip }: FlipCardProps) {
-  const getLevelContent = (card: StudyCard, isFront: boolean) => {
-    const level = card.levels?.[0];
+  const level =
+    card.levels.find(l => l.level_index === card.activeLevel) ??
+    card.levels[0];
 
-    if (!level || !level.content) {
-      return '…';
-    }
+  const frontText = level?.content?.question || card.title || '…';
+  const backText = level?.content?.answer || '…';
 
-    return isFront
-      ? level.content.question
-      : level.content.answer;
-  };
-
-  
   return (
     <div className="flipcard-container">
       <motion.div className="flipcard" onClick={onFlip} style={{ perspective: 1000 }}>
@@ -32,16 +25,16 @@ export function FlipCard({ card, isFlipped, onFlip }: FlipCardProps) {
           animate={{ transform: isFlipped ? 'rotateY(180deg)' : 'rotateY(0deg)' }}
           transition={{ duration: 0.6, ease: 'easeInOut' }}
         >
-          {/* Front Side */}
           <div className="flipcard__side flipcard__front">
-            <p className="flipcard__text">{getLevelContent(card, true)}</p>
+            <p className="flipcard__text">{frontText}</p>
             <div className="flipcard__hint">Нажмите, чтобы увидеть ответ</div>
           </div>
 
-          {/* Back Side */}
           <div className="flipcard__side flipcard__back">
-            <p className="flipcard__text">{getLevelContent(card, false)}</p>
-            <div className="flipcard__hint">Уровень {card.currentLevel + 1} из {card.levels.length}</div>
+            <p className="flipcard__text">{backText}</p>
+            <div className="flipcard__hint">
+              Уровень {card.activeLevel + 1} из {card.levels.length}
+            </div>
           </div>
         </motion.div>
       </motion.div>

@@ -10,6 +10,7 @@ import { EditCardFlow } from './screens/EditCardFlow';
 import { Onboarding } from './screens/Onboarding/Onboarding';
 import { AuthProvider } from './auth/AuthContext';
 import { AuthGate } from './auth/AuthGate';
+import { toStudyCards } from './utils/toStudyCards';
 import { CardType, Card, Deck, Statistics as StatsType, DifficultyRating, StudyCard } from './types';
 import { useStatistics, useStudySession } from './hooks';
 import useDecks from './hooks/useDecks';
@@ -168,9 +169,49 @@ function MainAppContent() {
     checkApiHealth();
   }, []);
   
-  const handleStartStudy = () => {
-    setIsStudying(true);
+
+  const handleLevelUp = async () => {
+    const card = cards[currentIndex];
+    if (!card) return;
+
+    try {
+      const r = await ApiClient.levelUp(card.id);
+      setDeckCards(prev =>
+        prev.map(c => (c.id === card.id ? { ...c, activeLevel: r.active_level } : c))
+      );
+    } catch (e) {
+      console.error('levelUp failed', e);
+    }
   };
+
+  const handleLevelDown = async () => {
+    const card = cards[currentIndex];
+    if (!card) return;
+
+    try {
+      const r = await ApiClient.levelDown(card.id);
+      setDeckCards(prev =>
+        prev.map(c => (c.id === card.id ? { ...c, activeLevel: r.active_level } : c))
+      );
+    } catch (e) {
+      console.error('levelDown failed', e);
+    }
+  };
+
+
+  const handleStartStudy = async () => {
+    try {
+      setLoadingDeckCards(true);
+
+      const items = await ApiClient.getReviewSession(20); // GET /cards/review_with_levels?limit=20
+      setDeckCards(toStudyCards(items));                  // <-- и тут используем
+      setActiveDeckId(null);
+      setIsStudying(true);
+    } finally {
+      setLoadingDeckCards(false);
+    }
+  };
+
   
   const handleRate = async (rating: DifficultyRating) => {
     try {
@@ -187,10 +228,6 @@ function MainAppContent() {
     } catch (error) {
       console.error('Error rating card:', error);
     }
-  };
-  
-  const handleLevelUp = () => {
-    // Логика повышения уровня уже обрабатывается в API
   };
   
   const handleCloseStudy = () => {
@@ -215,30 +252,18 @@ function MainAppContent() {
   const handleDeckClick = async (deckId: string) => {
     try {
       setLoadingDeckCards(true);
-      const token = localStorage.getItem('access_token');
-      if (!token) throw new Error('No auth token');
 
-      const cardsFromApi = await ApiClient.getDeckCards(deckId, token);
-      const normalizedCards = cardsFromApi.map((c: any) => ({
-        id: c.card_id,
-        title: c.title,
-        levels: c.levels,
-        currentLevel: 0,
-      }));
+      const items = await ApiClient.getDeckSession(deckId); // GET /decks/{deckId}/session
+      setDeckCards(toStudyCards(items));                   // <-- вот тут используем
+      setActiveDeckId(deckId);
 
-      setDeckCards(normalizedCards);
-
-      if (normalizedCards.length > 0) {
-        setActiveDeckId(deckId);
-        setIsStudying(true); // Запуск сессии только после загрузки
-      }
-
-    } catch (err) {
-      console.error('Failed to load deck cards:', err);
+      if (items.length > 0) setIsStudying(true);
     } finally {
       setLoadingDeckCards(false);
     }
   };
+
+
 
 
 
@@ -281,13 +306,36 @@ function MainAppContent() {
 if (isStudying) {
   // 1️⃣ Загрузка карточек
   
-  if (loadingDeckCards || deckCards.length === 0) {
-      return (
-        <div className="min-h-screen bg-dark flex items-center justify-center">
-          <div className="text-[#9CA3AF]">Загрузка карточек колоды…</div>
+  if (loadingDeckCards) {
+    return (
+      <div className="min-h-screen bg-dark flex items-center justify-center">
+        <div className="text-[#9CA3AF]">Загрузка карточек…</div>
+      </div>
+    );
+  }
+
+  if (deckCards.length === 0) {
+    return (
+      <div className="min-h-screen bg-dark flex items-center justify-center p-4">
+        <div className="card text-center max-w-390">
+          <h2 className="text-[#E8EAF0] mb-2">Нет карточек</h2>
+          <p className="text-[#9CA3AF] mb-6">
+            В этой сессии нет карточек для изучения.
+          </p>
+          <button
+            className="btn-primary w-full"
+            onClick={() => {
+              resetSession();
+              setIsStudying(false);
+            }}
+          >
+            Вернуться
+          </button>
         </div>
-      );
-    }
+      </div>
+    );
+  }
+
 
   // 2️⃣ Сессия завершена
   if (isCompleted) {
@@ -329,6 +377,8 @@ if (isStudying) {
         cards={cards}
         currentIndex={currentIndex}
         onRate={handleRate}
+        onLevelUp={handleLevelUp}
+        onLevelDown={handleLevelDown}
         onClose={handleCloseStudy}
       />
       <PWAUpdatePrompt />

@@ -152,6 +152,55 @@ static async replaceCardLevels(cardId: string, levels: Array<{ question: string;
   return res.json();
 }
 
+// deck mode: вся колода по created_at + все levels + active_level
+static async getDeckSession(deckId: string) {
+  const token = localStorage.getItem('access_token');
+  if (!token) throw new Error('No auth token');
 
+  const res = await fetch(`${this.API_BASE_URL}/decks/${deckId}/session`, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+
+  if (!res.ok) throw new Error(await res.text());
+  return res.json();
+}
+
+static async levelUp(cardId: string) {
+  const token = localStorage.getItem('access_token');
+  if (!token) throw new Error('No auth token');
+
+  const res = await fetch(`${this.API_BASE_URL}/cards/${cardId}/level_up`, {
+    method: 'POST',
+    headers: { Authorization: `Bearer ${token}` },
+  });
+
+  if (!res.ok) throw new Error(await res.text());
+  return res.json(); // { active_level: number }
+}
+
+static async levelDown(cardId: string) {
+  const token = localStorage.getItem('access_token');
+  if (!token) throw new Error('No auth token');
+
+  const res = await fetch(`${this.API_BASE_URL}/cards/${cardId}/level_down`, {
+    method: 'POST',
+    headers: { Authorization: `Bearer ${token}` },
+  });
+
+  if (!res.ok) throw new Error(await res.text());
+  return res.json(); // { active_level: number }
+}
+
+static async getReviewSession(limit = 20) {
+  const token = localStorage.getItem('access_token');
+  if (!token) throw new Error('No auth token');
+
+  const res = await fetch(`${this.API_BASE_URL}/cards/review_with_levels?limit=${limit}`, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+
+  if (!res.ok) throw new Error(await res.text());
+  return res.json();
+}
 
 }

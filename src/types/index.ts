@@ -6,16 +6,16 @@ export enum CardType {
 
 export interface CardLevel {
   level_index: number;
-  content: {
-    question: string;
-    answer: string;
-  };
+  content: { question: string; answer: string };
 }
 
 export interface StudyCard {
   id: string;
+  deckId: string;
   title: string;
-  levels: CardLevel[];
+  type: string;
+  levels: CardLevel[];     // все уровни
+  activeLevel: number;     // текущий уровень пользователя (CardProgress.active_level)
 }
 
 export interface Card {

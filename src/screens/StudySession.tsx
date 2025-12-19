@@ -10,11 +10,13 @@ interface StudySessionProps {
   cards: StudyCard[];
   currentIndex: number;
   onRate: (rating: DifficultyRating) => void;
-  onLevelUp: () => void;
   onClose: () => void;
+  onLevelUp: () => void;
+  onLevelDown: () => void;
 }
 
-export function StudySession({ cards, currentIndex, onRate, onClose }: StudySessionProps) {
+
+export function StudySession({ cards, currentIndex, onRate, onClose, onLevelUp, onLevelDown }: StudySessionProps) {
   const [isFlipped, setIsFlipped] = useState(false);
   
   const currentCard = cards[currentIndex];
@@ -78,19 +80,27 @@ export function StudySession({ cards, currentIndex, onRate, onClose }: StudySess
         ) : (
           <div className="study__actions-inner">
             {/* Level Up Button */}
-            {/* {canLevelUp && (
+            <div className="flex gap-3 mb-3">
               <Button
-                onClick={handleLevelUp}
+                onClick={onLevelDown}
                 variant="secondary"
                 size="medium"
                 fullWidth
-                className="btn--centered"
+                disabled={currentCard.activeLevel <= 0}
               >
-                <ArrowUp size={20} />
-                Попробовать сложнее
+                Проще
               </Button>
-            )} */}
-            
+
+              <Button
+                onClick={onLevelUp}
+                variant="secondary"
+                size="medium"
+                fullWidth
+                disabled={currentCard.activeLevel >= currentCard.levels.length - 1}
+              >
+                Сложнее
+              </Button>
+            </div>
             {/* Rating Buttons */}
             <div className="rating-row">
               <RatingButton
