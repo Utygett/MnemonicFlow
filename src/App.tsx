@@ -658,7 +658,7 @@ if (isStudying) {
               <div className="p-4 container-centered max-w-390">
                 <div className="card card--center">
                   <div className="avatar avatar--xl avatar--accent">У</div>
-                  <h2 className="mb-2 text-[#E8EAF0]">Пользователь</h2>
+                  <h2 className="mb-2 text-[#E8EAF0]">АБД</h2>
                   <p className="text-[#9CA3AF]">user@example.com</p>
                   
                   {/* PWA Status */}
