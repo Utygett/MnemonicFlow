@@ -25,19 +25,6 @@ export function CreateCard({ decks, onSave, onCancel }: CreateCardProps) {
   const [deckId, setDeckId] = useState<string>(defaultDeckId);
 
   const [levels, setLevels] = useState<LevelQA[]>([{ question: '', answer: '' }]);
-
-  const levelDescriptions = [
-    'Простое определение',
-    'Развернутое определение',
-    'Контекстный вопрос',
-    'Сложная задача',
-    'Применение на практике',
-    'Анализ и синтез',
-    'Критическое мышление',
-    'Экспертный уровень',
-    'Мастерство',
-    'Инновации',
-  ];
   const [qPreview, setQPreview] = useState(false);
   const [aPreview, setAPreview] = useState(false);
 
@@ -93,7 +80,7 @@ export function CreateCard({ decks, onSave, onCancel }: CreateCardProps) {
         </div>
       </div>
 
-      <main className="container-centered max-w-390 space-y-6 py-6">
+      <main className="container-centered w-full max-w-4xl space-y-6 py-6">
         {/* Deck select */}
         <div className="form-row">
           <label className="form-label">Колода</label>
@@ -156,12 +143,7 @@ export function CreateCard({ decks, onSave, onCancel }: CreateCardProps) {
           {/* Active level editor */}
           <div className="card">
             <div className="flex items-center justify-between">
-              <span className="text-sm text-[#9CA3AF]">
-                {levelDescriptions[activeLevel] || `Уровень ${activeLevel + 1}`}
-              </span>
-
-              <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                <LevelIndicator currentLevel={Math.min(activeLevel, 3) as 0 | 1 | 2 | 3} size="small" />
+              <div style={{ display: 'flex', alignItems: 'center', gap: 2 }}>
                 {levels.length > 1 && (
                   <button
                     onClick={() => handleRemoveLevel(activeLevel)}
@@ -174,18 +156,18 @@ export function CreateCard({ decks, onSave, onCancel }: CreateCardProps) {
             </div>
 
             {/* Question */}
-            <div className="card">
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <label className="form-label">Вопрос</label>
+            <div className="mt-3">
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                <label className="form-label" style={{ marginBottom: 0 }} >Вопрос</label>
 
                     <button
                       type="button"
                       onClick={() => setQPreview(v => !v)}
-                      className="icon-btn"
+                      className="icon-btn icon-btn--raise"
                       aria-label={qPreview ? 'Выключить предпросмотр' : 'Включить предпросмотр'}
                       title={qPreview ? 'Выключить предпросмотр' : 'Включить предпросмотр'}
                     >
-                      {qPreview ? <EyeOff size={18} /> : <Eye size={18} />}
+                      {qPreview ? <EyeOff size={24} /> : <Eye size={24} />}
                     </button>
 
               </div>
@@ -203,18 +185,18 @@ export function CreateCard({ decks, onSave, onCancel }: CreateCardProps) {
             </div>
 
             {/* Answer */}
-            <div className="card">
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <label className="form-label">Ответ</label>
+            <div className="mt-4">
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                <label className="form-label" style={{ marginBottom: 0 }}>Ответ</label>
 
                   <button
                     type="button"
                     onClick={() => setAPreview(v => !v)}
-                    className="icon-btn"
+                    className="icon-btn icon-btn--raise"
                     aria-label={aPreview ? 'Выключить предпросмотр' : 'Включить предпросмотр'}
                     title={aPreview ? 'Выключить предпросмотр' : 'Включить предпросмотр'}
                   >
-                    {aPreview ? <EyeOff size={18} /> : <Eye size={18} />}
+                    {aPreview ? <EyeOff size={24} /> : <Eye size={24} />}
                   </button>
               </div>
 

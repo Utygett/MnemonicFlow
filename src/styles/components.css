@@ -294,7 +294,7 @@ h1, h2, h3, h4, h5, h6, p {
 .card { background:#252B3D; padding:1rem; border-radius:0.75rem; border:1px solid #2D3548; }
 
 /* Generic card primitives (replaces Tailwind utilities) */
-.card { display:flex; flex-direction:column; gap:1.5rem; }
+.card { display:flex; flex-direction:column; gap:0.1rem; }
 .card__header { padding: 1.5rem; padding-bottom: 0.75rem; display:block; }
 .card__title { margin:0; color: #E8EAF0; font-size: 1rem; line-height: 1.1; }
 .card__description { color: #9CA3AF; margin-top: 0.25rem; }
@@ -1002,13 +1002,18 @@ h1, h2, h3, h4, h5, h6, p {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-
   background: rgba(255, 255, 255, 0.06);
   border: 1px solid rgba(255, 255, 255, 0.10);
   color: #9CA3AF;
 
   transition: background 120ms ease, transform 120ms ease;
 }
+
+.icon-btn--raise {
+  position: relative;
+  top: -4px; /* подстрой: -2px, -6px и т.д. */
+}
+
 
 .icon-btn:hover {
   background: rgba(255, 255, 255, 0.10);
